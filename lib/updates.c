@@ -210,7 +210,7 @@ void update_metro_gauge(SystemParam_t *Par, Field_t *Fields){
 
       #ifdef DEBUG
       double delta_glob, ene1, ene2, delta_loc;
-      ene1 = H_dens(Par, Fields)+(Par->V);
+      ene1 = H_dens(Par, Fields)*(Par->V);
       delta_loc = -2*(Par->J)*(N)*creal(prod * (cexp(I*trial) - cexp(I*(Fields->gauge[iSite][mu])))) +2*((Par->K)/2.0)*(((D)-1)*(pow(trial,2) - pow(Fields->gauge[iSite][mu],2)) + f_g*(trial - Fields->gauge[iSite][mu]));
       #endif
 

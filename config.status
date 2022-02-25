@@ -437,7 +437,7 @@ Copyright (C) 2012 Free Software Foundation, Inc.
 This config.status script is free software; the Free Software Foundation
 gives unlimited permission to copy, distribute and modify it."
 
-ac_pwd='/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/U1-NON COMPATTO'
+ac_pwd='/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/u1_nc'
 srcdir='.'
 INSTALL='/usr/bin/install -c'
 MKDIR_P='/usr/bin/mkdir -p'
@@ -653,12 +653,12 @@ S["mkdir_p"]="$(MKDIR_P)"
 S["MKDIR_P"]="/usr/bin/mkdir -p"
 S["INSTALL_STRIP_PROGRAM"]="$(install_sh) -c -s"
 S["STRIP"]=""
-S["install_sh"]="${SHELL} '/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/U1-NON COMPATTO/install-sh'"
-S["MAKEINFO"]="${SHELL} \"/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/U1-NON COMPATTO/missing\" makeinfo"
-S["AUTOHEADER"]="${SHELL} \"/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/U1-NON COMPATTO/missing\" autoheader"
-S["AUTOMAKE"]="${SHELL} \"/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/U1-NON COMPATTO/missing\" automake-1.16"
-S["AUTOCONF"]="${SHELL} \"/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/U1-NON COMPATTO/missing\" autoconf"
-S["ACLOCAL"]="${SHELL} \"/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/U1-NON COMPATTO/missing\" aclocal-1.16"
+S["install_sh"]="${SHELL} '/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/u1_nc/install-sh'"
+S["MAKEINFO"]="${SHELL} \"/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/u1_nc/missing\" makeinfo"
+S["AUTOHEADER"]="${SHELL} \"/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/u1_nc/missing\" autoheader"
+S["AUTOMAKE"]="${SHELL} \"/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/u1_nc/missing\" automake-1.16"
+S["AUTOCONF"]="${SHELL} \"/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/u1_nc/missing\" autoconf"
+S["ACLOCAL"]="${SHELL} \"/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/u1_nc/missing\" aclocal-1.16"
 S["VERSION"]="0.1"
 S["PACKAGE"]="u1_nc"
 S["CYGPATH_W"]="echo"

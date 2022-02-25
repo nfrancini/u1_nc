@@ -54,7 +54,7 @@ int main(int argc, char const *argv[]){
   }
   fprintf(fptr, "%d\t%d\t%d\t%lf\t%lf\n", Param.L, Param.V, N, Param.J, Param.K);           // SCRIVO I PARAMETRI SU FILE CHE POI RILEGGO NELL'ANALISI
   fprintf(fptr, "#en_sp_dens\ten_g_dens\tene_density\tsusceptib\tG_pm_tilde\tmu2\n\n");     // PRIMA LINEA SU FILE DELLE MISURE PER CAPIRE COSA SONO LE COLONNE DI DATI
-  
+
   for(i=0;i<(Param.iMis);i++){
     update_configurations(&Param, &Config);             // UPDATE DELLE CONFIGURAZIONI PER iDec VOLTE PRIMA DELLA MISURA
     measure(&Param, &Config, &Oss);                     // MISURE DELLE VARIE GRANDEZZE SU RETICOLO
@@ -68,8 +68,8 @@ int main(int argc, char const *argv[]){
 
   // ALCUNI MESSAGGI DI USCITA TRA CUI ACCETTANZE E MESSAGGIO DI FINE PROGRAMMA
   #ifdef DEBUG
-  printf("1.0e-12<ERRORE<1.0E-11 = %lf\n", err1/(3*(Param.D)*(Param.V)*((Param.iDec))));
-  printf("ERRORE>1.0E-11 = %lf\n", err2/(3*(Param.D)*(Param.V)*((Param.iDec))));
+  printf("1.0e-12<ERRORE<1.0E-11 = %lf\n", err1/((Param.iOverr)*D*(Param.V)*((Param.iDec))));
+  printf("ERRORE>1.0E-11 = %lf\n", err2/((Param.iOverr)*D*(Param.V)*((Param.iDec))));
   #endif
   printf("FINE PROGRAMMA \n");
 
