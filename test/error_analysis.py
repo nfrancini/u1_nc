@@ -44,19 +44,21 @@ def binder(obs):
 def corr_lenght(obs1, obs2):
     return np.sqrt((np.mean(obs1)/np.mean(obs2)) -1) / (2*np.sin(np.pi/L))
 
-fpath = '/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/U1-NON COMPATTO/test/tmp'
+fpath = '/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/u1_nc/data/L_6/J_0.30000_k_0.00000.dat'
 
 V = 125
 L = 5
 skip = 1000
-ene_sp, ene_g, ene_dens, susc, G_pm, mu2 = np.genfromtxt(fpath, dtype = "double", delimiter = "\t", unpack = True, skip_header = skip+2)
+L, V, D, J, K = np.genfromtxt(fpath, dtype = "double", delimiter = "\t", unpack = True, max_rows = 1)
+ene_sp, ene_g, ene_dens, susc, G_pm, mu2 = np.genfromtxt(fpath, dtype = "double", delimiter = "\t", unpack = True, skip_header = skip+3)
 
-ene_dens = ene_dens[0:10000]
-ene_sp = ene_sp[0:10000]
-ene_g = ene_g[0:10000]
-susc = susc[0:10000]
-G_pm = G_pm[0:10000]
-mu2 = mu2[0:10000]
+max_len = 8000
+ene_dens = ene_dens[0:max_len]
+ene_sp = ene_sp[0:max_len]
+ene_g = ene_g[0:max_len]
+susc = susc[0:max_len]
+G_pm = G_pm[0:max_len]
+mu2 = mu2[0:max_len]
 
 err_ene_sp = np.zeros(0)
 err_ene_g = np.zeros(0)
@@ -68,7 +70,7 @@ err_binder = np.zeros(0)
 err_corr_len = np.zeros(0)
 
 # taglie = np.array([100, 200, 300, 400, 500, 900, 1000])
-taglie = np.array([200, 400, 500])
+taglie = np.array([25, 50, 100])
 
 for size in taglie:
     err_ene_sp = np.append(err_ene_sp, jack_error_1obs(media, ene_sp, size))
@@ -98,5 +100,4 @@ pl.scatter(taglie, err_spec_heat)
 pl.scatter(taglie, err_binder)
 pl.scatter(taglie, err_corr_len)
 pl.scatter(taglie, err_ene_g)
-# pl.plot(G_pm)
 pl.show()
