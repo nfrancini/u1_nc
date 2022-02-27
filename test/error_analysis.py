@@ -44,10 +44,9 @@ def binder(obs):
 def corr_lenght(obs1, obs2):
     return np.sqrt((np.mean(obs1)/np.mean(obs2)) -1) / (2*np.sin(np.pi/L))
 
-fpath = '/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/u1_nc/data/L_6/J_0.30000_k_0.00000.dat'
+fpath = '/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/u1_nc/data/L_6/J_5.00000_k_0.50000.dat'
 
-V = 125
-L = 5
+
 skip = 1000
 L, V, D, J, K = np.genfromtxt(fpath, dtype = "double", delimiter = "\t", unpack = True, max_rows = 1)
 ene_sp, ene_g, ene_dens, susc, G_pm, mu2 = np.genfromtxt(fpath, dtype = "double", delimiter = "\t", unpack = True, skip_header = skip+3)
