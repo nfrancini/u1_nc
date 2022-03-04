@@ -90,24 +90,24 @@ void update_metro_scalar(SystemParam_t *Par, Field_t *Fields){
     double ene1, delta_loc;
     double ene2, delta_glob;
     delta_loc = -(2*(Par->J)*(N)*creal(prod));
-    ene1 = H_dens(Par, Fields)*(Par->V);
+    ene1 = H_dens(Par, Fields);
     #endif
 
     r = exp(2*(Par->J)*(N)*creal(prod));       // RAPPORTO DI PROBABILITÀ TRA CONFIG DI PROVA E QUELLA DI PARTENZA
 
     #ifdef DEBUG
-    if(errno == ERANGE){
-      printf("Funzione update_metro\n");
-      perror("    errno == ERANGE");
-    }
+    // if(errno == ERANGE){
+    //   printf("Funzione update_metro\n");
+    //   perror("    errno == ERANGE");
+    // }
     if(fetestexcept(FE_OVERFLOW)){
       printf("    FE_OVERFLOW was raised\n");
       exit(EXIT_FAILURE);
     }
-    else if(fetestexcept(FE_UNDERFLOW)){
-      printf("    FE_UNDERFLOW was raised\n");
-      // exit(EXIT_FAILURE);
-    }
+    // else if(fetestexcept(FE_UNDERFLOW)){
+    //   printf("    FE_UNDERFLOW was raised\n");
+    //   // exit(EXIT_FAILURE);
+    // }
     else if(fetestexcept(FE_DIVBYZERO)){
       printf("    FE_DIVBYZERO was raised\n");
       // exit(EXIT_FAILURE);
@@ -120,13 +120,13 @@ void update_metro_scalar(SystemParam_t *Par, Field_t *Fields){
       acc2 = acc2 +1.0;                             // AGGIORNO IL NUMERO DI PASSI ACCETTATI
 
       #ifdef DEBUG
-      ene2 = H_dens(Par, Fields)*(Par->V);
+      ene2 = H_dens(Par, Fields);
       delta_glob = ene2 - ene1;
-      if(fabs(delta_loc - delta_glob)>1.0e-12){
-        if((fabs(delta_loc - delta_glob)>1.0e-12)&(fabs(delta_loc - delta_glob)<1.0e-11)){
+      if(fabs(delta_loc/Par->V - delta_glob)>1.0e-12){
+        if((fabs(delta_loc/Par->V - delta_glob)>1.0e-12)&(fabs(delta_loc/Par->V - delta_glob)<1.0e-11)){
           err1 = err1+1;
         }
-        else if((fabs(delta_loc - delta_glob)>1.0e-11)){
+        else if((fabs(delta_loc/Par->V - delta_glob)>1.0e-11)){
           err2=err2+1;
         }
       }
@@ -150,7 +150,7 @@ void update_micro(SystemParam_t *Par, Field_t *Fields){
   for(iSite=0; iSite<(Par->V); iSite++){      // UPDATE MICROCANONICO SEQUENZIALE SU TUTTI I SITI
     #ifdef DEBUG
     double ene1;
-    ene1 = H_dens(Par, Fields)*(Par->V);
+    ene1 = H_dens(Par, Fields);
     #endif
 
     mean_scalar(Par, Fields, iSite, f);                             // CALCOLO f CAMPO MEDI0
@@ -174,12 +174,14 @@ void update_micro(SystemParam_t *Par, Field_t *Fields){
     copy(Par, trial, Fields->scalar[iSite]);
     #ifdef DEBUG
     double ene2;
-    ene2 = H_dens(Par, Fields)*(Par->V);
+    ene2 = H_dens(Par, Fields);
     if(fabs(ene1-ene2)>1e-12){
       if((fabs(ene1-ene2)>1.0e-12)&(fabs(ene1-ene2)<1.0e-11)){
         err1 = err1+1;
+        // printf("ERRORE NELL'UPDATE MICROCANONICO = %.13lf\n", fabs(ene1-ene2));
       }
       else if((fabs(ene1-ene2)>1.0e-11)){
+        // printf("ERRORE NELL'UPDATE MICROCANONICO = %.13lf\n", fabs(ene1-ene2));
         err2=err2+1;
       }
     }
@@ -210,7 +212,7 @@ void update_metro_gauge(SystemParam_t *Par, Field_t *Fields){
 
       #ifdef DEBUG
       double delta_glob, ene1, ene2, delta_loc;
-      ene1 = H_dens(Par, Fields)*(Par->V);
+      ene1 = H_dens(Par, Fields);
       delta_loc = -2*(Par->J)*(N)*creal(prod * (cexp(I*trial) - cexp(I*(Fields->gauge[iSite][mu])))) +2*((Par->K)/2.0)*(((D)-1)*(pow(trial,2) - pow(Fields->gauge[iSite][mu],2)) + f_g*(trial - Fields->gauge[iSite][mu]));
       #endif
 
@@ -242,17 +244,18 @@ void update_metro_gauge(SystemParam_t *Par, Field_t *Fields){
         acc1 = acc1 + 1.0;                  // AGGIORNO IL NUMERO DI PASSI ACCETTATI
 
         #ifdef DEBUG
-        ene2 = H_dens(Par, Fields)*(Par->V);
+        ene2 = H_dens(Par, Fields);
         delta_glob = ene2 - ene1;
-        if((fabs(delta_loc - delta_glob)>1.0e-12)&(fabs(delta_loc - delta_glob)<1.0e-11)){
+        if((fabs(delta_loc/Par->V - delta_glob)>1.0e-12)&(fabs(delta_loc/Par->V - delta_glob)<1.0e-11)){
           // printf("ERRORE NELL'UPDATE DEL CAMPO DI GAUGE\n");
           // printf("delta_glob=%.13lf\n", delta_glob);
           // printf("delta_loc =%.13lf\n", delta_loc);
-          // printf("|delta_loc-delta_glob| = %.13lf\n", fabs(delta_loc-delta_glob));
+          // printf("|delta_loc-delta_glob| = %.13lf\n", fabs(delta_loc/Par->V -delta_glob));
           err1 = err1+1;
           // exit(EXIT_FAILURE);
         }
         else if((fabs(delta_loc - delta_glob)>1.0e-11)){
+          // printf("|delta_loc-delta_glob| = %.13lf\n", fabs(delta_loc/Par->V -delta_glob));
           err2=err2+1;
         }
         #endif
@@ -318,40 +321,40 @@ void modify_eps(SystemParam_t *Par, Field_t *Fields, bool_t ctrl_1, bool_t ctrl_
     thermalization(Par, Fields, count+1);
   }
   else if((ctrl_1==FALSE)&&(ctrl_3==TRUE)&&(ctrl_2==FALSE)&&(ctrl_4==FALSE)){   // acc1 TROPPO PICCOLA, acc2 OK
-    Par->eps1 = Par->eps1 - 0.1;
+    Par->eps1 = Par->eps1 - 0.001;
     acc1 = 0;
     acc2 = 0;
     thermalization(Par, Fields, count+1);
   }
   else if((ctrl_1==FALSE)&&(ctrl_3==TRUE)&&(ctrl_2==TRUE)&&(ctrl_4==FALSE)){    // acc1 TROPPO GRANDE, acc2 OK
-    Par->eps1 = Par->eps1 + 0.1;
+    Par->eps1 = Par->eps1 + 0.001;
     acc1 = 0;
     acc2 = 0;
     thermalization(Par, Fields, count+1);
   }
   else if((ctrl_1==FALSE)&&(ctrl_3==FALSE)&&(ctrl_2==FALSE)&&(ctrl_4==FALSE)){  // acc1 TROPPO PICCOLA, acc2 TROPPO PICCOLA
-    Par->eps1 = Par->eps1 - 0.1;
+    Par->eps1 = Par->eps1 - 1/(Par->K);
     Par->eps2 = Par->eps2 - 0.05;
     acc1 = 0;
     acc2 = 0;
     thermalization(Par, Fields, count+1);
   }
   else if((ctrl_1==FALSE)&&(ctrl_3==FALSE)&&(ctrl_2==FALSE)&&(ctrl_4==TRUE)){   // acc1 TROPPO PICCOLA, acc2 TROPPO GRANDE
-    Par->eps1 = Par->eps1 - 0.1;
+    Par->eps1 = Par->eps1 - 0.001;
     Par->eps2 = Par->eps2 + 0.05;
     acc1 = 0;
     acc2 = 0;
     thermalization(Par, Fields, count+1);
   }
   else if((ctrl_1==FALSE)&&(ctrl_3==FALSE)&&(ctrl_2==TRUE)&&(ctrl_4==FALSE)){   // acc1 TROPPO GRANDE, acc2 TROPPO PICCOLA
-    Par->eps1 = Par->eps1 + 0.1;
+    Par->eps1 = Par->eps1 + 0.001;
     Par->eps2 = Par->eps2 - 0.05;
     acc1 = 0;
     acc2 = 0;
     thermalization(Par, Fields, count+1);
   }
   else if((ctrl_1==FALSE)&&(ctrl_3==FALSE)&&(ctrl_2==TRUE)&&(ctrl_4==TRUE)){    // acc1 TROPPO GRANDE, acc2 TROPPO GRANDE
-    Par->eps1 = Par->eps1 + 0.1;
+    Par->eps1 = Par->eps1 + 0.001;
     Par->eps2 = Par->eps2 + 0.05;
     acc1 = 0;
     acc2 = 0;

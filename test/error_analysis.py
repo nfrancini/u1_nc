@@ -44,14 +44,14 @@ def binder(obs):
 def corr_lenght(obs1, obs2):
     return np.sqrt((np.mean(obs1)/np.mean(obs2)) -1) / (2*np.sin(np.pi/L))
 
-fpath = '/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/u1_nc/data/L_6/J_5.00000_k_0.50000.dat'
+fpath = '/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/u1_nc/data/L_6/J_0.50000_k_10000.00000.dat'
 
 
 skip = 1000
 L, V, D, J, K = np.genfromtxt(fpath, dtype = "double", delimiter = "\t", unpack = True, max_rows = 1)
 ene_sp, ene_g, ene_dens, susc, G_pm, mu2 = np.genfromtxt(fpath, dtype = "double", delimiter = "\t", unpack = True, skip_header = skip+3)
 
-max_len = 8000
+max_len = 9000
 ene_dens = ene_dens[0:max_len]
 ene_sp = ene_sp[0:max_len]
 ene_g = ene_g[0:max_len]
@@ -69,7 +69,7 @@ err_binder = np.zeros(0)
 err_corr_len = np.zeros(0)
 
 # taglie = np.array([100, 200, 300, 400, 500, 900, 1000])
-taglie = np.array([25, 50, 100])
+taglie = np.array([90,100])
 
 for size in taglie:
     err_ene_sp = np.append(err_ene_sp, jack_error_1obs(media, ene_sp, size))

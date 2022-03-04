@@ -2,7 +2,7 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Spacetime dimensionality */
-#define D 2
+#define D 3
 
 /* Define to 1 if you have the <complex.h> header file. */
 #define HAVE_COMPLEX_H 1
