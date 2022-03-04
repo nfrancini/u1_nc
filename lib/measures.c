@@ -92,7 +92,7 @@ double H_g_dens(SystemParam_t *Par, Field_t *Fields){
       }
     }
   }
-  ene = (Par->K/2.0)*(sum/2.0);       // UN FATTORE 1/2 È DOVUTO ALLA NORMALIZZAZIONE DI K MENTRE L'ALTRO ALLA SIMMETRIZZAZIONE DELLA SOMMA
+  ene = (Par->K)*sum/4.0;       // UN FATTORE 1/2 È DOVUTO ALLA NORMALIZZAZIONE DI K MENTRE L'ALTRO ALLA SIMMETRIZZAZIONE DELLA SOMMA
   return ene/(Par->V);              // RESTITUISCO LA DENSITÀ DI ENERGIA DEL CAMPO DI GAUGE
 }
 
@@ -169,9 +169,6 @@ void measure(SystemParam_t *Par, Field_t *Fields, Obs_t *Obs){
   Obs->spin_ene_density = H_z_dens(Par, Fields);
   Obs->gauge_ene_density = H_g_dens(Par, Fields);
   Obs->ene_density = Obs->spin_ene_density + Obs->gauge_ene_density;
-  // susc(Par, Fields, &(Obs->susc));
-  // G_pm(Par, Fields, &(Obs->G_pm));
-  // mu2(Par, Fields, &(Obs->mu2));
   susc_mu2(Par, Fields, &(Obs->susc), &(Obs->mu2));
   G_pm_matrix(Par, Fields, &(Obs->G_pm));
 }

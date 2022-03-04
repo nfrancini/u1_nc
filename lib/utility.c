@@ -95,9 +95,9 @@ void resetErr(){
 // CHE REGOLANO LE ACCETTANZE
 // IN QUESTO CASO HO PRESO UN LIMITE INFERIORE DI 0.30 E SUPERIORE DI 0.37
 void ctrl_acceptance(double ac, bool_t *ctrl_1, bool_t *ctrl_2){
-  double a_min, a_max;
-  a_min = 0.30;
-  a_max = 0.37;
+  double a_min = 0.30;
+  double a_max = 0.37;
+  
   if((ac>=a_min)&&(ac<=a_max)){
     *ctrl_1 = TRUE;
     *ctrl_2 = FALSE;

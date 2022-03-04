@@ -10,7 +10,7 @@ dsfmt_t dsfmt;                          // VARIABILE GLOBALE PER IL GENERATORE D
 double acc1, acc2, err1=0, err2=0;      // VARIABILI GLOBALI PER AGGIORNARE I PASSI ACCETTATI ED EVENTUALI ERRORI NUMERICI
 int **npp, **nmm;                       // ARRAY CHE MEMORIZZANO I PRIMI VICINI
 
-struct stat st ={0};
+struct stat st = {0};                   // NECESSARIA AL CONTROLLO DELLE CARTELLE
 
 // MAIN DEL PROGRAMMA
 int main(int argc, char const *argv[]){
@@ -68,8 +68,8 @@ int main(int argc, char const *argv[]){
 
   // ALCUNI MESSAGGI DI USCITA TRA CUI ACCETTANZE E MESSAGGIO DI FINE PROGRAMMA
   #ifdef DEBUG
-  // printf("1.0e-12<ERRORE<1.0E-11 = %lf\n", err1/((Param.iOverr)*D*(Param.V)*((Param.iDec))));
-  // printf("ERRORE>1.0E-11 = %lf\n", err2/((Param.iOverr)*D*(Param.V)*((Param.iDec))));
+  printf("1.0e-12<ERRORE<1.0E-11 = %lf\n", err1/((Param.iOverr)*D*(Param.V)*((Param.iDec))));
+  printf("ERRORE>1.0E-11 = %lf\n", err2/((Param.iOverr)*D*(Param.V)*((Param.iDec))));
   #endif
   printf("ACCETTANZA UPDATE DI GAUGE %lf\n", acc1/((Param.iMis)*(Param.iDec)*(D)*(Param.V)));
   printf("ACCETTANZA UPDATE SCALARE %lf\n", acc2/((Param.iMis)*(Param.iDec)*(Param.V)));

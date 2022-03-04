@@ -93,44 +93,50 @@ void update_metro_scalar(SystemParam_t *Par, Field_t *Fields){
     ene1 = H_dens(Par, Fields);
     #endif
 
-    r = exp(2*(Par->J)*(N)*creal(prod));       // RAPPORTO DI PROBABILITÀ TRA CONFIG DI PROVA E QUELLA DI PARTENZA
-
-    #ifdef DEBUG
-    // if(errno == ERANGE){
-    //   printf("Funzione update_metro\n");
-    //   perror("    errno == ERANGE");
-    // }
-    if(fetestexcept(FE_OVERFLOW)){
-      printf("    FE_OVERFLOW was raised\n");
-      exit(EXIT_FAILURE);
-    }
-    // else if(fetestexcept(FE_UNDERFLOW)){
-    //   printf("    FE_UNDERFLOW was raised\n");
-    //   // exit(EXIT_FAILURE);
-    // }
-    else if(fetestexcept(FE_DIVBYZERO)){
-      printf("    FE_DIVBYZERO was raised\n");
-      // exit(EXIT_FAILURE);
-    }
-    #endif
-
-    a = rndm();
-    if(a < r){                                      // ACCETTO CON PROBABILITÀ r IL CAMBIO (SE r>1 ACCETTO SICURO)
+    if(2*(Par->J)*(N)*creal(prod) > 0){
       copy(Par, trial, Fields->scalar[iSite]);      // CAMBIO AVVENUTO
       acc2 = acc2 +1.0;                             // AGGIORNO IL NUMERO DI PASSI ACCETTATI
+    }
+    else{
+      a = rndm();
+      r = exp(2*(Par->J)*(N)*creal(prod));       // RAPPORTO DI PROBABILITÀ TRA CONFIG DI PROVA E QUELLA DI PARTENZA
 
       #ifdef DEBUG
-      ene2 = H_dens(Par, Fields);
-      delta_glob = ene2 - ene1;
-      if(fabs(delta_loc/Par->V - delta_glob)>1.0e-12){
-        if((fabs(delta_loc/Par->V - delta_glob)>1.0e-12)&(fabs(delta_loc/Par->V - delta_glob)<1.0e-11)){
-          err1 = err1+1;
-        }
-        else if((fabs(delta_loc/Par->V - delta_glob)>1.0e-11)){
-          err2=err2+1;
-        }
+      if(errno == ERANGE){
+        printf("Funzione update_metro\n");
+        perror("    errno == ERANGE");
+      }
+      if(fetestexcept(FE_OVERFLOW)){
+        printf("    FE_OVERFLOW was raised\n");
+        exit(EXIT_FAILURE);
+      }
+      else if(fetestexcept(FE_UNDERFLOW)){
+        printf("    FE_UNDERFLOW was raised\n");
+        exit(EXIT_FAILURE);
+      }
+      else if(fetestexcept(FE_DIVBYZERO)){
+        printf("    FE_DIVBYZERO was raised\n");
+        exit(EXIT_FAILURE);
       }
       #endif
+
+      if(a < r){                                      // ACCETTO CON PROBABILITÀ r IL CAMBIO (SE r>1 ACCETTO SICURO)
+        copy(Par, trial, Fields->scalar[iSite]);      // CAMBIO AVVENUTO
+        acc2 = acc2 +1.0;                             // AGGIORNO IL NUMERO DI PASSI ACCETTATI
+
+        #ifdef DEBUG
+        ene2 = H_dens(Par, Fields);
+        delta_glob = ene2 - ene1;
+        if(fabs(delta_loc/Par->V - delta_glob)>1.0e-12){
+          if((fabs(delta_loc/Par->V - delta_glob)>1.0e-12)&(fabs(delta_loc/Par->V - delta_glob)<1.0e-11)){
+            err1 = err1+1;
+          }
+          else if((fabs(delta_loc/Par->V - delta_glob)>1.0e-11)){
+            err2=err2+1;
+          }
+        }
+        #endif
+      }
     }
   }
 }
@@ -167,25 +173,25 @@ void update_micro(SystemParam_t *Par, Field_t *Fields){
       copy(Par, trial, Fields->scalar[iSite]);
       return;
     }
+    else{
+      for(j=0;j<(N);j++){                                  // CREO IL CAMPO DA SOSTITUIRE
+        trial[j] = f[j]*b/norm - (Fields->scalar[iSite][j]);
+      }
+      copy(Par, trial, Fields->scalar[iSite]);
 
-    for(j=0;j<(N);j++){                                  // CREO IL CAMPO DA SOSTITUIRE
-      trial[j] = f[j]*b/norm - (Fields->scalar[iSite][j]);
-    }
-    copy(Par, trial, Fields->scalar[iSite]);
-    #ifdef DEBUG
-    double ene2;
-    ene2 = H_dens(Par, Fields);
-    if(fabs(ene1-ene2)>1e-12){
-      if((fabs(ene1-ene2)>1.0e-12)&(fabs(ene1-ene2)<1.0e-11)){
-        err1 = err1+1;
-        // printf("ERRORE NELL'UPDATE MICROCANONICO = %.13lf\n", fabs(ene1-ene2));
+      #ifdef DEBUG
+      double ene2;
+      ene2 = H_dens(Par, Fields);
+      if(fabs(ene1-ene2)>1e-12){
+        if((fabs(ene1-ene2)>1.0e-12)&(fabs(ene1-ene2)<1.0e-11)){
+          err1 = err1+1;
+        }
+        else if((fabs(ene1-ene2)>1.0e-11)){
+          err2=err2+1;
+        }
       }
-      else if((fabs(ene1-ene2)>1.0e-11)){
-        // printf("ERRORE NELL'UPDATE MICROCANONICO = %.13lf\n", fabs(ene1-ene2));
-        err2=err2+1;
-      }
+      #endif
     }
-    #endif
   }
 }
 
@@ -217,48 +223,48 @@ void update_metro_gauge(SystemParam_t *Par, Field_t *Fields){
       #endif
 
       // RAPPORTO r DI PROBABILITÀ TRA CONFIGURAZIONE DI PROVA E CONFIG INIZIALE
-      r = exp(2*(Par->J)*(N)*creal(prod * (cexp(I*trial) - cexp(I*(Fields->gauge[iSite][mu])))) -2*((Par->K)/2.0)*(((D)-1)*(pow(trial,2) - pow(Fields->gauge[iSite][mu],2)) + f_g*(trial - Fields->gauge[iSite][mu])));
-
-      #ifdef DEBUG
-      if(errno == EDOM){
-        printf("Funzione update_metro_gauge, cexp\n");
-        perror("    errno == EDOM");
-      }
-      if(errno == ERANGE){
-        printf("Funzione update_metro_gauge, cexp\n");
-        perror("    errno == ERANGE");
-      }
-      if(fetestexcept(FE_INVALID)){
-        puts("    FE_INVALID was raised");
-        exit(EXIT_FAILURE);
-      }
-      if(fetestexcept(FE_OVERFLOW)){
-        puts("    FE_OVERFLOW was raised");
-        exit(EXIT_FAILURE);
-      }
-      #endif
-
-      a = rndm();
-      if(a<r){                              // ACCETTO LA NUOVA CONFIGURAZIONE CON PROBABILITÀ r (SE r>1 ACCETTO SICURO)
+      if((2*(Par->J)*(N)*creal(prod * (cexp(I*trial) - cexp(I*(Fields->gauge[iSite][mu])))) -2*((Par->K)/2.0)*(((D)-1)*(pow(trial,2) - pow(Fields->gauge[iSite][mu],2)) + f_g*(trial - Fields->gauge[iSite][mu]))) > 0){
         Fields->gauge[iSite][mu] = trial;
         acc1 = acc1 + 1.0;                  // AGGIORNO IL NUMERO DI PASSI ACCETTATI
+      }
+      else{
+        a = rndm();
+        r = exp(2*(Par->J)*(N)*creal(prod * (cexp(I*trial) - cexp(I*(Fields->gauge[iSite][mu])))) -2*((Par->K)/2.0)*(((D)-1)*(pow(trial,2) - pow(Fields->gauge[iSite][mu],2)) + f_g*(trial - Fields->gauge[iSite][mu])));
 
         #ifdef DEBUG
-        ene2 = H_dens(Par, Fields);
-        delta_glob = ene2 - ene1;
-        if((fabs(delta_loc/Par->V - delta_glob)>1.0e-12)&(fabs(delta_loc/Par->V - delta_glob)<1.0e-11)){
-          // printf("ERRORE NELL'UPDATE DEL CAMPO DI GAUGE\n");
-          // printf("delta_glob=%.13lf\n", delta_glob);
-          // printf("delta_loc =%.13lf\n", delta_loc);
-          // printf("|delta_loc-delta_glob| = %.13lf\n", fabs(delta_loc/Par->V -delta_glob));
-          err1 = err1+1;
-          // exit(EXIT_FAILURE);
+        if(errno == EDOM){
+          printf("Funzione update_metro_gauge, cexp\n");
+          perror("    errno == EDOM");
         }
-        else if((fabs(delta_loc - delta_glob)>1.0e-11)){
-          // printf("|delta_loc-delta_glob| = %.13lf\n", fabs(delta_loc/Par->V -delta_glob));
-          err2=err2+1;
+        if(errno == ERANGE){
+          printf("Funzione update_metro_gauge, cexp\n");
+          perror("    errno == ERANGE");
+        }
+        if(fetestexcept(FE_INVALID)){
+          puts("    FE_INVALID was raised");
+          exit(EXIT_FAILURE);
+        }
+        if(fetestexcept(FE_OVERFLOW)){
+          puts("    FE_OVERFLOW was raised");
+          exit(EXIT_FAILURE);
         }
         #endif
+
+        if(a < r){                              // ACCETTO LA NUOVA CONFIGURAZIONE CON PROBABILITÀ r (SE r>1 ACCETTO SICURO)
+          Fields->gauge[iSite][mu] = trial;
+          acc1 = acc1 + 1.0;                  // AGGIORNO IL NUMERO DI PASSI ACCETTATI
+
+          #ifdef DEBUG
+          ene2 = H_dens(Par, Fields);
+          delta_glob = ene2 - ene1;
+          if((fabs(delta_loc/Par->V - delta_glob)>1.0e-12)&(fabs(delta_loc/Par->V - delta_glob)<1.0e-11)){
+            err1 = err1+1;
+          }
+          else if((fabs(delta_loc - delta_glob)>1.0e-11)){
+            err2=err2+1;
+          }
+          #endif
+        }
       }
     }
   }
@@ -267,6 +273,7 @@ void update_metro_gauge(SystemParam_t *Par, Field_t *Fields){
 // PROCEDURA DI TERMALIZZAZIONE, DA CONTROLLARE CON MACRO !!!
 void thermalization(SystemParam_t *Par, Field_t *Fields, int count){   // INSERIRE UNA PARTE DI GESTIONE AUTOMATICA DELLE ACCETTANZE
   int i, j;
+  int cutoff = 20;
   double a1, a2;                                         // PER QUESTA PARTE FARE IN MODO DI CONTROLLARE SE TERM O NO
   bool_t ctrl_1, ctrl_2, ctrl_3, ctrl_4;
 
@@ -274,31 +281,32 @@ void thermalization(SystemParam_t *Par, Field_t *Fields, int count){   // INSERI
   return;
   #endif
 
-  if(count>=10){
+  if(count>=cutoff){
     return;
   }
+  else{
+    for(i=0;i<(Par->iTerm); i++){       // PER UN NUMERO iTerm DI VOLTE RIPETO L'UPDATE SCALARE E DI GAUGE, CON 3 MICROCANONICI
+      update_metro_scalar(Par, Fields);
+      update_metro_gauge(Par, Fields);
+      for(j=0;j<(Par->iOverr);j++){
+        update_micro(Par, Fields);
+      }
 
-  for(i=0;i<(Par->iTerm); i++){       // PER UN NUMERO iTerm DI VOLTE RIPETO L'UPDATE SCALARE E DI GAUGE, CON 3 MICROCANONICI
-    update_metro_scalar(Par, Fields);
-    update_metro_gauge(Par, Fields);
-    for(j=0;j<(Par->iOverr);j++){
-      update_micro(Par, Fields);
+      if(i==((Par->iTerm)/2)){     // AGGIUSTO A MANO IL MODULO DEL CAMPO SCALARE CHE POTREBBE ESSERE CAMBIATO PER ERRORE NUMERICO
+        renormalize(Par, Fields);
+      }
     }
 
-    if(i==((Par->iTerm)/2)){     // AGGIUSTO A MANO IL MODULO DEL CAMPO SCALARE CHE POTREBBE ESSERE CAMBIATO PER ERRORE NUMERICO
-      renormalize(Par, Fields);
-    }
+    a1 = acc1/((Par->iTerm)*(D)*(Par->V));     // ACCETTANZE NELLA PARTE DI TERMALIZZAZIONE
+    a2 = acc2/((Par->iTerm)*(Par->V));
+    ctrl_acceptance(a1, &ctrl_1, &ctrl_2);          // CONTROLLO LE ACCETTANZE
+    ctrl_acceptance(a2, &ctrl_3, &ctrl_4);
+    modify_eps(Par, Fields, ctrl_1, ctrl_2, ctrl_3, ctrl_4, count);    // SE LE ACCETTANZE NON PASSANO IL CHECK MODIFICO I PARAMETRI eps1, eps2
+    #ifdef DEBUG
+    err1=0;
+    err2 =0;
+    #endif
   }
-
-  a1 = acc1/((Par->iTerm)*(D)*(Par->V));     // ACCETTANZE NELLA PARTE DI TERMALIZZAZIONE
-  a2 = acc2/((Par->iTerm)*(Par->V));
-  ctrl_acceptance(a1, &ctrl_1, &ctrl_2);          // CONTROLLO LE ACCETTANZE
-  ctrl_acceptance(a2, &ctrl_3, &ctrl_4);
-  modify_eps(Par, Fields, ctrl_1, ctrl_2, ctrl_3, ctrl_4, count);    // SE LE ACCETTANZE NON PASSANO IL CHECK MODIFICO I PARAMETRI eps1, eps2
-  #ifdef DEBUG
-  err1=0;
-  err2 =0;
-  #endif
 }
 
 // PROCEDURA PER MODIFICA AUTOMATICA DEI PARAMETRI DI ACCETTANZA
@@ -333,7 +341,7 @@ void modify_eps(SystemParam_t *Par, Field_t *Fields, bool_t ctrl_1, bool_t ctrl_
     thermalization(Par, Fields, count+1);
   }
   else if((ctrl_1==FALSE)&&(ctrl_3==FALSE)&&(ctrl_2==FALSE)&&(ctrl_4==FALSE)){  // acc1 TROPPO PICCOLA, acc2 TROPPO PICCOLA
-    Par->eps1 = Par->eps1 - 1/(Par->K);
+    Par->eps1 = Par->eps1 - 0.001;
     Par->eps2 = Par->eps2 - 0.05;
     acc1 = 0;
     acc2 = 0;
@@ -369,6 +377,7 @@ void modify_eps(SystemParam_t *Par, Field_t *Fields, bool_t ctrl_1, bool_t ctrl_
 // PROCEDURA DI UPDATE DELLE CONFIGURAZIONI, PER IDEC VOLTE
 void update_configurations(SystemParam_t *Par, Field_t *Fields){
   int i, j;
+  int cycle = 10;
 
   for(i=0;i<(Par->iDec); i++){            // RIPETO PER IDEC VOLTE GLI UPDATE 1 SCALARE, 1 GAUGE, 3 MICRO
     update_metro_scalar(Par, Fields);
@@ -377,7 +386,7 @@ void update_configurations(SystemParam_t *Par, Field_t *Fields){
       update_micro(Par, Fields);
     }
 
-    if((i%10)==0){     // AGGIUSTO A MANO IL MODULO DEL CAMPO SCALARE CHE POTREBBE ESSERE CAMBIATO PER ERRORE NUMERICO
+    if((i%cycle)==0){     // AGGIUSTO A MANO IL MODULO DEL CAMPO SCALARE CHE POTREBBE ESSERE CAMBIATO PER ERRORE NUMERICO
       renormalize(Par, Fields);
     }
   }

@@ -9,7 +9,7 @@ void writeFields(SystemParam_t *Par, Field_t *Fields){
 
   typedef struct{                           // DEFINISCO UNA STRUTTURA DI CAMPO COPIA CON DIMENSIONI ASSEGNATE
     double complex scalar[Par->V][N];
-    double gauge[Par->V][N];
+    double gauge[Par->V][D];
   } Field_cpy_t;
 
   Field_cpy_t Fields_cpy;
@@ -43,7 +43,7 @@ void readFields(SystemParam_t *Par, Field_t *Fields){
 
   typedef struct{                           // DEFINISCO UNA STRUTTURA DI CAMPO COPIA CON DIMENSIONI ASSEGNATE
     double complex scalar[Par->V][N];
-    double gauge[Par->V][N];
+    double gauge[Par->V][D];
   } Field_cpy_t;
 
   Field_cpy_t Fields_cpy;
