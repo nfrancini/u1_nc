@@ -329,40 +329,40 @@ void modify_eps(SystemParam_t *Par, Field_t *Fields, bool_t ctrl_1, bool_t ctrl_
     thermalization(Par, Fields, count+1);
   }
   else if((ctrl_1==FALSE)&&(ctrl_3==TRUE)&&(ctrl_2==FALSE)&&(ctrl_4==FALSE)){   // acc1 TROPPO PICCOLA, acc2 OK
-    Par->eps1 = Par->eps1 - 0.001;
+    Par->eps1 = Par->eps1 - 0.05;
     acc1 = 0;
     acc2 = 0;
     thermalization(Par, Fields, count+1);
   }
   else if((ctrl_1==FALSE)&&(ctrl_3==TRUE)&&(ctrl_2==TRUE)&&(ctrl_4==FALSE)){    // acc1 TROPPO GRANDE, acc2 OK
-    Par->eps1 = Par->eps1 + 0.001;
+    Par->eps1 = Par->eps1 + 0.05;
     acc1 = 0;
     acc2 = 0;
     thermalization(Par, Fields, count+1);
   }
   else if((ctrl_1==FALSE)&&(ctrl_3==FALSE)&&(ctrl_2==FALSE)&&(ctrl_4==FALSE)){  // acc1 TROPPO PICCOLA, acc2 TROPPO PICCOLA
-    Par->eps1 = Par->eps1 - 0.001;
+    Par->eps1 = Par->eps1 - 0.05;
     Par->eps2 = Par->eps2 - 0.05;
     acc1 = 0;
     acc2 = 0;
     thermalization(Par, Fields, count+1);
   }
   else if((ctrl_1==FALSE)&&(ctrl_3==FALSE)&&(ctrl_2==FALSE)&&(ctrl_4==TRUE)){   // acc1 TROPPO PICCOLA, acc2 TROPPO GRANDE
-    Par->eps1 = Par->eps1 - 0.001;
+    Par->eps1 = Par->eps1 - 0.05;
     Par->eps2 = Par->eps2 + 0.05;
     acc1 = 0;
     acc2 = 0;
     thermalization(Par, Fields, count+1);
   }
   else if((ctrl_1==FALSE)&&(ctrl_3==FALSE)&&(ctrl_2==TRUE)&&(ctrl_4==FALSE)){   // acc1 TROPPO GRANDE, acc2 TROPPO PICCOLA
-    Par->eps1 = Par->eps1 + 0.001;
+    Par->eps1 = Par->eps1 + 0.05;
     Par->eps2 = Par->eps2 - 0.05;
     acc1 = 0;
     acc2 = 0;
     thermalization(Par, Fields, count+1);
   }
   else if((ctrl_1==FALSE)&&(ctrl_3==FALSE)&&(ctrl_2==TRUE)&&(ctrl_4==TRUE)){    // acc1 TROPPO GRANDE, acc2 TROPPO GRANDE
-    Par->eps1 = Par->eps1 + 0.001;
+    Par->eps1 = Par->eps1 + 0.05;
     Par->eps2 = Par->eps2 + 0.05;
     acc1 = 0;
     acc2 = 0;

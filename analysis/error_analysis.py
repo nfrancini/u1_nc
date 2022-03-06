@@ -89,41 +89,42 @@ for size in taglie:
 
 # STAMPO SU FILE I RISULTATI NEL FORMATO ENE_SP, ENE_G, ENE_DENS, SUSC, GPM, C, BINDER, CSI
 if(os.path.isdir('./data_w_errors/L_%d' % L) == True):
-    f_name = "J_%f_K_%f" % (J, K)
+    f_name = "L_%d_K_%f" % (L, K)
     output_file = open('./data_w_errors/L_%d/%s.dat' % (L, f_name) , 'a')
 else:
     dir_name = "./data_w_errors/L_%d" % (L)
     os.makedirs(dir_name, exist_ok = False)
-    f_name = "J_%f_K_%f" % (J, K)
+    f_name = "L_%d_K_%f" % (L, K)
     output_file = open('./data_w_errors/L_%d/%s.dat' % (L, f_name) , 'a')
 
-output_file.write(str(np.mean(ene_sp)) + '\t')
-output_file.write(str(np.mean(err_ene_sp)) + '\t')
-output_file.write(str(np.mean(ene_g)) + '\t')
-output_file.write(str(np.mean(err_ene_g)) + '\t')
-output_file.write(str(np.mean(ene_dens)) +'\t')
-output_file.write(str(np.mean(err_ene)) + '\t')
-output_file.write(str(np.mean(susc)) + '\t')
-output_file.write(str(np.mean(err_susc)) + '\t')
-output_file.write(str(np.mean(G_pm)) + '\t')
-output_file.write(str(np.mean(err_G_pm)) + '\t')
-output_file.write(str(specific_heat(ene_dens)) + '\t')
-output_file.write(str(np.mean(err_spec_heat)) +'\t')
-output_file.write(str(binder(mu2)) + '\t')
-output_file.write(str(np.mean(err_binder)))
-output_file.write(str(corr_lenght(susc, G_pm)) + '\t')
-output_file.write(str(np.mean(err_corr_len)) + '\n')
+output_file.write(str(J) + '\t')                        # COLONNA 1
+output_file.write(str(np.mean(ene_sp)) + '\t')          # COLONNA 2
+output_file.write(str(np.mean(err_ene_sp)) + '\t')      # COLONNA 3
+output_file.write(str(np.mean(ene_g)) + '\t')           # COLONNA 4
+output_file.write(str(np.mean(err_ene_g)) + '\t')       # COLONNA 5
+output_file.write(str(np.mean(ene_dens)) +'\t')         # COLONNA 6
+output_file.write(str(np.mean(err_ene)) + '\t')         # COLONNA 7
+output_file.write(str(np.mean(susc)) + '\t')            # COLONNA 8
+output_file.write(str(np.mean(err_susc)) + '\t')        # COLONNA 9
+output_file.write(str(np.mean(G_pm)) + '\t')            # COLONNA 10
+output_file.write(str(np.mean(err_G_pm)) + '\t')        # COLONNA 11
+output_file.write(str(specific_heat(ene_dens)) + '\t')  # COLONNA 12
+output_file.write(str(np.mean(err_spec_heat)) +'\t')    # COLONNA 13
+output_file.write(str(binder(mu2)) + '\t')              # COLONNA 14
+output_file.write(str(np.mean(err_binder)) +'\t')       # COLONNA 15
+output_file.write(str(corr_lenght(susc, G_pm)) + '\t')  # COLONNA 16
+output_file.write(str(np.mean(err_corr_len)) + '\n')    # COLONNA 17
 
 output_file.close()
 
 # CONTROLLO CON PLOT
-pl.xscale('log')
-pl.yscale('log')
-pl.scatter(taglie, err_ene)
-pl.scatter(taglie, err_susc)
-pl.scatter(taglie, err_G_pm)
-pl.scatter(taglie, err_spec_heat)
-pl.scatter(taglie, err_binder)
-pl.scatter(taglie, err_corr_len)
-pl.scatter(taglie, err_ene_g)
-pl.show()
+# pl.xscale('log')
+# pl.yscale('log')
+# pl.scatter(taglie, err_ene)
+# pl.scatter(taglie, err_susc)
+# pl.scatter(taglie, err_G_pm)
+# pl.scatter(taglie, err_spec_heat)
+# pl.scatter(taglie, err_binder)
+# pl.scatter(taglie, err_corr_len)
+# pl.scatter(taglie, err_ene_g)
+# pl.show()
