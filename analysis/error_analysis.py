@@ -1,8 +1,10 @@
 import pylab as pl
 import numpy as np
-import erroranalysis as ea
+import sys
+import os
 from scipy.optimize import curve_fit
 
+# FUNZIONI PER L'ANALISI DEGLI ERRORI
 def jack_estimate_1obs(func, obs, block_size, index):
     resample = np.concatenate((obs[:index*block_size], obs[block_size*index+block_size:]))
     return func(resample)
@@ -32,6 +34,7 @@ def jack_error_2obs(func, obs1, obs2, block_size):
     sum2 = (sum2/(len(obs1)/block_size))**2
     return np.sqrt(len(obs1)/block_size - 1) * np.sqrt(sum1-sum2)
 
+# FUNZIONI PER ESTRARRE LA GIUSTA OSSERVABILE
 def media(obs):
     return np.mean(obs)
 
@@ -44,21 +47,24 @@ def binder(obs):
 def corr_lenght(obs1, obs2):
     return np.sqrt((np.mean(obs1)/np.mean(obs2)) -1) / (2*np.sin(np.pi/L))
 
-fpath = '/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/u1_nc/data/L_6/J_0.50000_k_10000.00000.dat'
+# LETTURA DEL FILE DA TERMINALE
+input_file = open(sys.argv[1], "r")
 
+L, V, D, J, K = np.genfromtxt(input_file, dtype = "double", delimiter = "\t", unpack = True, max_rows = 1)
+ene_sp, ene_g, ene_dens, susc, G_pm, mu2 = np.genfromtxt(input_file, dtype = "double", delimiter = "\t", unpack = True, skip_header = 2)
 
-skip = 1000
-L, V, D, J, K = np.genfromtxt(fpath, dtype = "double", delimiter = "\t", unpack = True, max_rows = 1)
-ene_sp, ene_g, ene_dens, susc, G_pm, mu2 = np.genfromtxt(fpath, dtype = "double", delimiter = "\t", unpack = True, skip_header = skip+3)
+input_file.close()
 
-max_len = 9000
-ene_dens = ene_dens[0:max_len]
-ene_sp = ene_sp[0:max_len]
-ene_g = ene_g[0:max_len]
-susc = susc[0:max_len]
-G_pm = G_pm[0:max_len]
-mu2 = mu2[0:max_len]
+# SCARTO LA TESTA DEL FILE SCARTO IL PRIMO DECIMO
+skip = len(ene_dens)//10
+ene_dens = ene_dens[skip:]
+ene_sp = ene_sp[skip:]
+ene_g = ene_g[skip:]
+susc = susc[skip:]
+G_pm = G_pm[skip:]
+mu2 = mu2[skip:]
 
+# CREO GLI ARRAY PER SALVARE L'ERRRORE
 err_ene_sp = np.zeros(0)
 err_ene_g = np.zeros(0)
 err_ene = np.zeros(0)
@@ -68,8 +74,8 @@ err_spec_heat = np.zeros(0)
 err_binder = np.zeros(0)
 err_corr_len = np.zeros(0)
 
-# taglie = np.array([100, 200, 300, 400, 500, 900, 1000])
-taglie = np.array([90,100])
+# FACCIO DUE VOLTE LA PROCEDURA DI JACKKNIFE E POI MEDIO SU DUE TAGLIE DIVERSE
+taglie = np.array([len(ene_dens)//100, len(ene_dens)//200, len(ene_dens)//500])
 
 for size in taglie:
     err_ene_sp = np.append(err_ene_sp, jack_error_1obs(media, ene_sp, size))
@@ -81,15 +87,36 @@ for size in taglie:
     err_binder = np.append(err_binder, jack_error_1obs(binder, mu2, size))
     err_corr_len = np.append(err_corr_len, jack_error_2obs(corr_lenght, susc, G_pm, size))
 
-print("DENSITÀ DI ENERGIA = ", np.mean(ene_dens), "+-", np.mean(err_ene))
-print("DENSITÀ DI ENERGIA SPIN= ", np.mean(ene_sp), "+-", np.mean(err_ene_sp))
-print("DENSITÀ DI ENERGIA GAUGE= ", np.mean(ene_g), "+-", np.mean(err_ene_g))
-print("SUSCETTIVITÀ = ", np.mean(susc), "+-", np.mean(err_susc))
-print("G_PM = ", np.mean(G_pm), "+-", np.mean(err_G_pm))
-print("CALORE SPECIFICO = ", specific_heat(ene_dens), "+-", np.mean(err_spec_heat))
-print("BINDER = ", binder(mu2), "+-", np.mean(err_binder))
-print("LUNGHEZZA DI CORRELAZIONE = ", corr_lenght(susc, G_pm), "+-", np.mean(err_corr_len))
+# STAMPO SU FILE I RISULTATI NEL FORMATO ENE_SP, ENE_G, ENE_DENS, SUSC, GPM, C, BINDER, CSI
+if(os.path.isdir('./data_w_errors/L_%d' % L) == True):
+    f_name = "J_%f_K_%f" % (J, K)
+    output_file = open('./data_w_errors/L_%d/%s.dat' % (L, f_name) , 'a')
+else:
+    dir_name = "./data_w_errors/L_%d" % (L)
+    os.makedirs(dir_name, exist_ok = False)
+    f_name = "J_%f_K_%f" % (J, K)
+    output_file = open('./data_w_errors/L_%d/%s.dat' % (L, f_name) , 'a')
 
+output_file.write(str(np.mean(ene_sp)) + '\t')
+output_file.write(str(np.mean(err_ene_sp)) + '\t')
+output_file.write(str(np.mean(ene_g)) + '\t')
+output_file.write(str(np.mean(err_ene_g)) + '\t')
+output_file.write(str(np.mean(ene_dens)) +'\t')
+output_file.write(str(np.mean(err_ene)) + '\t')
+output_file.write(str(np.mean(susc)) + '\t')
+output_file.write(str(np.mean(err_susc)) + '\t')
+output_file.write(str(np.mean(G_pm)) + '\t')
+output_file.write(str(np.mean(err_G_pm)) + '\t')
+output_file.write(str(specific_heat(ene_dens)) + '\t')
+output_file.write(str(np.mean(err_spec_heat)) +'\t')
+output_file.write(str(binder(mu2)) + '\t')
+output_file.write(str(np.mean(err_binder)))
+output_file.write(str(corr_lenght(susc, G_pm)) + '\t')
+output_file.write(str(np.mean(err_corr_len)) + '\n')
+
+output_file.close()
+
+# CONTROLLO CON PLOT
 pl.xscale('log')
 pl.yscale('log')
 pl.scatter(taglie, err_ene)
