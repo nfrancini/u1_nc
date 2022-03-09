@@ -277,35 +277,39 @@ void thermalization(SystemParam_t *Par, Field_t *Fields, int count){   // INSERI
   double a1, a2;                                         // PER QUESTA PARTE FARE IN MODO DI CONTROLLARE SE TERM O NO
   bool_t ctrl_1, ctrl_2, ctrl_3, ctrl_4;
 
-  #ifdef RESUME       // SE È DEFINITO RESUME NON TERMALIZZO, RIPRENDO DA CONFIGURAZIONE SALVATA
-  return;
-  #endif
-
-  if(count>=cutoff){
+  if((Par->iStart) == 1){
     return;
   }
-  else{
-    for(i=0;i<(Par->iTerm); i++){       // PER UN NUMERO iTerm DI VOLTE RIPETO L'UPDATE SCALARE E DI GAUGE, CON 3 MICROCANONICI
-      update_metro_scalar(Par, Fields);
-      update_metro_gauge(Par, Fields);
-      for(j=0;j<(Par->iOverr);j++){
-        update_micro(Par, Fields);
-      }
-
-      if(i==((Par->iTerm)/2)){     // AGGIUSTO A MANO IL MODULO DEL CAMPO SCALARE CHE POTREBBE ESSERE CAMBIATO PER ERRORE NUMERICO
-        renormalize(Par, Fields);
-      }
+  else if((Par->iStart) == 0){
+    if(count>=cutoff){
+      return;
     }
+    else{
+      for(i=0;i<(Par->iTerm); i++){       // PER UN NUMERO iTerm DI VOLTE RIPETO L'UPDATE SCALARE E DI GAUGE, CON 3 MICROCANONICI
+        update_metro_scalar(Par, Fields);
+        update_metro_gauge(Par, Fields);
+        for(j=0;j<(Par->iOverr);j++){
+          update_micro(Par, Fields);
+        }
 
-    a1 = acc1/((Par->iTerm)*(D)*(Par->V));     // ACCETTANZE NELLA PARTE DI TERMALIZZAZIONE
-    a2 = acc2/((Par->iTerm)*(Par->V));
-    ctrl_acceptance(a1, &ctrl_1, &ctrl_2);          // CONTROLLO LE ACCETTANZE
-    ctrl_acceptance(a2, &ctrl_3, &ctrl_4);
-    modify_eps(Par, Fields, ctrl_1, ctrl_2, ctrl_3, ctrl_4, count);    // SE LE ACCETTANZE NON PASSANO IL CHECK MODIFICO I PARAMETRI eps1, eps2
-    #ifdef DEBUG
-    err1=0;
-    err2 =0;
-    #endif
+        if(i==((Par->iTerm)/2)){     // AGGIUSTO A MANO IL MODULO DEL CAMPO SCALARE CHE POTREBBE ESSERE CAMBIATO PER ERRORE NUMERICO
+          renormalize(Par, Fields);
+        }
+      }
+
+      a1 = acc1/((Par->iTerm)*(D)*(Par->V));     // ACCETTANZE NELLA PARTE DI TERMALIZZAZIONE
+      a2 = acc2/((Par->iTerm)*(Par->V));
+      ctrl_acceptance(a1, &ctrl_1, &ctrl_2);          // CONTROLLO LE ACCETTANZE
+      ctrl_acceptance(a2, &ctrl_3, &ctrl_4);
+      modify_eps(Par, Fields, ctrl_1, ctrl_2, ctrl_3, ctrl_4, count);    // SE LE ACCETTANZE NON PASSANO IL CHECK MODIFICO I PARAMETRI eps1, eps2
+      #ifdef DEBUG
+      err1=0;
+      err2 =0;
+      #endif
+    }
+  }
+  else{
+    printf("Errore in iStart\n");
   }
 }
 

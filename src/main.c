@@ -22,13 +22,11 @@ int main(int argc, char const *argv[]){
   char buffer[64];                      // BUFFER DI CARATTERI AUSILIARIO PER IL NOME DEL FILE DI USCITE DELLE MISURE
   FILE *fptr;                           // PUNTATORE A FILE PER SCRIVERE I DATI
 
-  // INIZIALIZZO GEN RANDOM
-  srand(time(NULL));                    // INIZIALIZZO IL GENERATORE RAND DI C
-  seed = rand();                        // INIZIALIZZO IL SEME DEL DSFMT CON RAND
-  dsfmt_init_gen_rand(&dsfmt, seed);    // INIZIALIZZO IL GENERATORE
-
   // INIZIALIZZO I PARAMETRI DI SISTEMA
-  initializeSystem(&Param, &Config, &Oss);
+  initializeSystem(&Param, &Config, &Oss, argv[1]);
+
+  // INIZIALIZZO GEN RANDOM
+  dsfmt_init_gen_rand(&dsfmt, Param.dSFMT_seed);    // INIZIALIZZO IL GENERATORE
 
   // TERMALIZZAZIONE
   thermalization(&Param, &Config, count);
@@ -38,16 +36,7 @@ int main(int argc, char const *argv[]){
   writeFields(&Param, &Config);
 
   // ESEGUO DELLE MISURAZIONI DI ENERGIA OGNI CHIAMATA DI UP_CONF CHE RIPETE IDEC VOLTE L'UPDATE
-  snprintf(buffer, sizeof(char)*64, "./data");
-  if(stat(buffer, &st) == -1){                                // SE NON ESISTE LA CARTELLA LA CREA
-    mkdir(buffer, 0700);
-  }
-  snprintf(buffer, sizeof(char)*64, "./data/L_%d", Param.L);
-  if(stat(buffer, &st) == -1){                                // SE NON ESISTE LA CARTELLA LA CREA
-    mkdir(buffer, 0700);
-  }
-  snprintf(buffer, sizeof(char)*64, "./data/L_%d/J_%.5lf_k_%.5lf.dat", Param.L, Param.J, Param.K);
-  fptr = fopen(buffer, "w");
+  fptr = fopen(Param.data_file, "w");
   if (fptr == NULL) {
     perror("Errore in apertura per la scrittura dati");
     exit(1);
@@ -59,21 +48,18 @@ int main(int argc, char const *argv[]){
     update_configurations(&Param, &Config);             // UPDATE DELLE CONFIGURAZIONI PER iDec VOLTE PRIMA DELLA MISURA
     measure(&Param, &Config, &Oss);                     // MISURE DELLE VARIE GRANDEZZE SU RETICOLO
     writeObs(fptr, &Oss);                               // SALVATAGGIO DELLE MISURE
-    // writeFields(&Param, &Config);                    // EVENTUALE SALVATAGGIO DELLA CONFIGURAZIONE
+    if((i % (Param.iBackup)) == 0){
+      writeFields(&Param, &Config);                     // OGNI iBackup MISURE SALVO UNA CONFIGURAZIONE
+    }
   }
+  writeFields(&Param, &Config);                         // SALVO LA CONFIGURAZIONE PRIMA DI CHIUDERE
 
   // CHIUDO IL FILE DELLE NMISURE E DEALLOCO LA MEMORIA DINAMICA
   fclose(fptr);
   deallocation(&Config);
 
   // ALCUNI MESSAGGI DI USCITA TRA CUI ACCETTANZE E MESSAGGIO DI FINE PROGRAMMA
-  #ifdef DEBUG
-  printf("1.0e-12<ERRORE<1.0E-11 = %lf\n", err1/((Param.iOverr)*D*(Param.V)*((Param.iDec))));
-  printf("ERRORE>1.0E-11 = %lf\n", err2/((Param.iOverr)*D*(Param.V)*((Param.iDec))));
-  #endif
-  printf("ACCETTANZA UPDATE DI GAUGE %lf\n", acc1/((Param.iMis)*(Param.iDec)*(D)*(Param.V)));
-  printf("ACCETTANZA UPDATE SCALARE %lf\n", acc2/((Param.iMis)*(Param.iDec)*(Param.V)));
-  printf("FINE PROGRAMMA \n");
+  writeLogs(&Param);
 
   // CONVIENE ANCHE INSERIRE IL NOME DEL FILE DI SALVATAGGIO DA INPUT
 

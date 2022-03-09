@@ -200,7 +200,7 @@ AUTOCONF = ${SHELL} "/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/u1_nc
 AUTOHEADER = ${SHELL} "/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/u1_nc/missing" autoheader
 AUTOMAKE = ${SHELL} "/home/n-francini/Scrivania/TESI/SIMULAZIONI NUMERICHE/u1_nc/missing" automake-1.16
 AWK = mawk
-CC = gcc
+CC = icc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
 CPP = gcc -E
@@ -310,7 +310,7 @@ u1_nc_SOURCES = ./src/main.c \
 								$(dSFMT) \
 								$(libs)
 
-AM_CFLAGS = -O3 -msse2 -DDSFMT_MEXP=19937 -DHAVE_SSE2 -lm
+AM_CFLAGS = -O3 -msse2 -DDSFMT_MEXP=19937 -DHAVE_SSE2
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 

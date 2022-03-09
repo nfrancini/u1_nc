@@ -200,7 +200,7 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
-CC = @CC@
+CC = icc
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
 CPP = @CPP@
@@ -310,7 +310,7 @@ u1_nc_SOURCES = ./src/main.c \
 								$(dSFMT) \
 								$(libs)
 
-AM_CFLAGS = -O3 -msse2 -DDSFMT_MEXP=19937 -DHAVE_SSE2 -lm
+AM_CFLAGS = -O3 -msse2 -DDSFMT_MEXP=19937 -DHAVE_SSE2
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 

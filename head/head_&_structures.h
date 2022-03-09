@@ -4,6 +4,7 @@
 #include <time.h>
 #include "dSFMT.h"
 #include <math.h>
+#include <string.h>
 #include <complex.h>
 #include <errno.h>
 #include <fenv.h>
@@ -12,11 +13,9 @@
 #include "../config.h"
 
 // MACRO
-// #define DEBUG        // MACRO DI DEBUG
-// #define RESUME       // MACRO DI RESUME, SE È DEFINITA ALLORA IL SISTEMA RIPARTE DALLA CONFIGURAZIONE SALVATA
+// #define DEBUG              // MACRO DI DEBUG
 #define PI 3.14159265358979   // PI GRECO
-// #define N  2             // LE DEFINISCO DIRETTAMENTE DA TERMINALE TRAMITE CONFIGURE
-// #define D  2             // LE DEFINISCO DIRETTAMENTE DA TERMINALE TRAMITE CONFIGURE
+#define STD_STRING_LENGTH 50  // LUNGHEZZA STANDARD DELLE STRINGHE DI LUNGHEZZA IGNOTA
 
 typedef struct {  // DEFINISCO IL TIPO SystemParam_t STRUTTURATO NEL SEGUENTE MODO
   int L;          // NUMERO DI SITI PER LATO
@@ -28,7 +27,16 @@ typedef struct {  // DEFINISCO IL TIPO SystemParam_t STRUTTURATO NEL SEGUENTE MO
   int iTerm;      // NUMERO DI UPDATE DI TERMALIZZAZIONE
   int iDec;       // NUMERO DI UPDATE PER DECORRELARE LA CATENA
   int iMis;       // NUMERO DI MISURAZIONI
-  int iOverr;      // NUMERO DI PASSI DI OVERRELAXATION
+  int iOverr;     // NUMERO DI PASSI DI OVERRELAXATION
+  int iStart;     // INDICE PER PARTENZA ORDINATA (iStart = 0) O DA FILE PRECEDENTE (iStart = 1)
+  int iBackup;    // OGNI iBackup MISURE SALVO UNA CONFIGURAZIONE
+
+  char conf_file[STD_STRING_LENGTH];      // NOME DEL FILE DI SALVATAGGIO DELLE CONFIGURAZIONI
+  char eps_file[STD_STRING_LENGTH];       // NOME DEL FILE DI SALVATAGGIO DEI PARAMETRI DI ACCETTANZA
+  char data_file[STD_STRING_LENGTH];      // NOME DEL FILE DI SALVATAGGIO DEI DATI
+  char log_file[STD_STRING_LENGTH];       // NOME DEL FILE DI SALVATAGGIO DEL LOG
+
+  unsigned int dSFMT_seed;                // SEED PER IL DSFMT
 } SystemParam_t;
 
 typedef struct {              // DEFINISCO IL TIPO Field_t STRUTTURATO NEL SEGUENTO MODO
@@ -64,11 +72,12 @@ void ctrl_acceptance(double ac, bool_t *ctrl_1, bool_t *ctrl_2);                
                                                                                                     // AUTOMATICO DEI PARAMETRI DI ACCETTANZA
 // FUNZIONI E PROCEDURE PER L'INIZIALIZZAZIONE E LA DEALLOCAZIONE
 void geometry(SystemParam_t *Par);                                              // PROCEDURA CHE IMPLEMENTA NPP E NMM
-void read_from_input_Param(SystemParam_t *Par);                                 // PROCEDURA PER LEGGERE I PARAMETRI DA input.txt
+void read_from_input_Param(SystemParam_t *Par, char const *finput);             // PROCEDURA PER LEGGERE I PARAMETRI DA input.txt
 void allocation(SystemParam_t *Par, Field_t *Fields);                           // PROCEDURA DI ALLOCAZIONE DINAMICA PER LE STRUTTURE E NPP NMM
+void remove_white_line_and_comments(FILE *input);                                // PROCEDURA PER RIMUOVERE SPAZI BIANCHI E COMMENTI DAL FILE DI INPUT
 void initializeFields(SystemParam_t *Par, Field_t *Fields);                     // PROCEDURA DI INIZIALIZZAZIONE DEI CAMPI
 void initializeObs(Obs_t *Obs);                                                 // PROCEDURA DI INIZIALIZZAZIONE A ZERO DELLE OSSERVABILI
-void initializeSystem(SystemParam_t *Par, Field_t *Fields, Obs_t *Obs);         // PROCEDURA DI INIZIALIZZIONE DEL SISTEMA
+void initializeSystem(SystemParam_t *Par, Field_t *Fields, Obs_t *Obs, char const *finput);    // PROCEDURA DI INIZIALIZZIONE DEL SISTEMA
 void deallocation(Field_t *Fields);                                             // DEALLOCAZIONE DELLA MEMORIA
 
 // FUNZIONI E PROCEDURE PER LA MANIPOLAZIONE DEI CAMPI, IN PARTICOLARE CAMPO MEDIO E PRIMI VICINI
@@ -102,3 +111,4 @@ void readFields(SystemParam_t *Par, Field_t *Fields);                 // PROCEDU
 void writeEps(SystemParam_t *Par);                                    // PROCEDURA CHE SALVA I PARAMETRI DI ACCETTANZA TROVATI DALLA TERMALIZZAZIONE
 void readEps(SystemParam_t *Par);                                     // PROCEDURA CHE LEGGE I PARAMETRI DI ACCETTANZA PRECEDENTEMENTE SALVATI
 void writeObs(FILE *fptr, Obs_t *Obs);                                // PROCEDURA CHE SALVA SU FILE LE OSSERVABILI MISURATE
+void writeLogs(SystemParam_t *Par);                                   // PROCEDURA CHE SALVA IL LOG DELLA SIMULAZIONE

@@ -1,4 +1,3 @@
-import pylab as pl
 import numpy as np
 import sys
 import os
@@ -89,12 +88,12 @@ for size in taglie:
 
 # STAMPO SU FILE I RISULTATI NEL FORMATO ENE_SP, ENE_G, ENE_DENS, SUSC, GPM, C, BINDER, CSI
 if(os.path.isdir('./data_w_errors/L_%d' % L) == True):
-    f_name = "L_%d_K_%f" % (L, K)
+    f_name = "J_%f_K_%f" % (J, K)
     output_file = open('./data_w_errors/L_%d/%s.dat' % (L, f_name) , 'a')
 else:
     dir_name = "./data_w_errors/L_%d" % (L)
     os.makedirs(dir_name, exist_ok = False)
-    f_name = "L_%d_K_%f" % (L, K)
+    f_name = "J_%f_K_%f" % (J, K)
     output_file = open('./data_w_errors/L_%d/%s.dat' % (L, f_name) , 'a')
 
 output_file.write(str(J) + '\t')                        # COLONNA 1

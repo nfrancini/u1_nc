@@ -30,66 +30,202 @@ void geometry(SystemParam_t *Par){
   }
 }
 
-// PROCEDURA CHE LEGGE DA FILE I PARAMETRI DI SISTEMA
-void read_from_input_Param(SystemParam_t *Par){
-  int flag;
-  char buffer[64];
-  FILE *fInput;
+// PROCEDURA PER ELIMINARE GLI SPAZI ED I COMMENTI DAL FILE DI INPUT
+void remove_white_line_and_comments(FILE *input){
+  int temp_i;
 
-  snprintf(buffer, sizeof(char)*64, "./input/input.txt");
-  fInput = fopen(buffer, "r");
+  temp_i=getc(input);
+  if(temp_i=='\n' || temp_i==' ' || temp_i=='\043') // SCAN PER SPAZI VUOTI E COMMENTI
+    {
+    ungetc(temp_i, input);
+
+    temp_i=getc(input);
+    if(temp_i=='\n' || temp_i==' ') // LINEE VUOTE
+      {
+      do
+       {
+       temp_i=getc(input);
+       }
+      while(temp_i=='\n' || temp_i==' ');
+      }
+    ungetc(temp_i, input);
+
+    temp_i=getc(input);
+    if(temp_i=='\043')  // COMMENTI, 043 È IL CODICE ASCII PER #
+      {
+      do
+       {
+       temp_i=getc(input);
+       }
+      while(temp_i!='\n');
+      }
+    else
+      {
+      ungetc(temp_i, input);
+      }
+
+    remove_white_line_and_comments(input);
+    }
+  else
+    {
+    ungetc(temp_i, input);
+    }
+  }
+
+// PROCEDURA CHE LEGGE DA FILE I PARAMETRI DI SISTEMA
+void read_from_input_Param(SystemParam_t *Par, char const *finput){
+  int flag, temp_i;
+  int end=1;
+  FILE *fInput;
+  char str[100];
+
+  fInput = fopen(finput, "r");
   if (fInput == NULL) {
     perror("Errore in apertura in read_from_input_Param");
-    exit(1);
+    exit(EXIT_FAILURE);
   }
-  flag = fscanf(fInput, "%d\n", &(Par->L));
-  if (flag == EOF) {
-    perror("Errore di lettura");
-    exit(1);
-  }
-  flag = fscanf(fInput, "%lf\n", &(Par->J));
-  if (flag == EOF) {
-    perror("Errore di lettura");
-    exit(1);
-  }
-  flag = fscanf(fInput, "%lf\n", &(Par->K));
-  if (flag == EOF) {
-    perror("Errore di lettura");
-    exit(1);
-  }
-  flag = fscanf(fInput, "%lf\n", &(Par->eps1));
-  if (flag == EOF) {
-    perror("Errore di lettura");
-    exit(1);
-  }
-  flag = fscanf(fInput, "%lf\n", &(Par->eps2));
-  if (flag == EOF) {
-    perror("Errore di lettura");
-    exit(1);
-  }
-  flag = fscanf(fInput, "%d\n", &(Par->iTerm));
-  if (flag == EOF) {
-    perror("Errore di lettura");
-    exit(1);
-  }
-  flag = fscanf(fInput, "%d\n", &(Par->iDec));
-  if (flag == EOF) {
-    perror("Errore di lettura");
-    exit(1);
-  }
-  flag = fscanf(fInput, "%d\n", &(Par->iMis));
-  if (flag == EOF) {
-    perror("Errore di lettura");
-    exit(1);
-  }
-  flag = fscanf(fInput, "%d\n", &(Par->iOverr));
-  if (flag == EOF) {
-    perror("Errore di lettura");
-    exit(1);
-  }
-  fclose(fInput);
+  else{
+    while(end==1){
+      remove_white_line_and_comments(fInput);
 
-  Par->V = (int)pow(Par->L, D);    // CALCOLO QUA IL VOLUME
+      flag = fscanf(fInput, "%s", str);
+      if (flag != 1) {
+        perror("Errore di lettura della prima stringa");
+        exit(EXIT_FAILURE);
+      }
+
+      if(strncmp(str, "size", 4) == 0){
+        flag = fscanf(fInput, "%d", &(Par->L));
+        if (flag != 1){
+          perror("Errore di lettura nella taglia");
+          exit(EXIT_FAILURE);
+        }
+      }
+      else if(strncmp(str, "j", 1) == 0){
+        flag = fscanf(fInput, "%lf", &(Par->J));
+        if (flag != 1){
+          perror("Errore di lettura");
+          exit(EXIT_FAILURE);
+        }
+      }
+      else if(strncmp(str, "k", 1) == 0){
+        flag = fscanf(fInput, "%lf", &(Par->K));
+        if (flag != 1){
+          perror("Errore di lettura");
+          exit(EXIT_FAILURE);
+        }
+      }
+      else if(strncmp(str, "eps_gauge", 9) == 0){
+        flag = fscanf(fInput, "%lf", &(Par->eps1));
+        if (flag != 1){
+          perror("Errore di lettura");
+          exit(EXIT_FAILURE);
+        }
+      }
+      else if(strncmp(str, "eps_scalar", 10) == 0){
+        flag = fscanf(fInput, "%lf", &(Par->eps2));
+        if (flag != 1){
+          perror("Errore di lettura");
+          exit(EXIT_FAILURE);
+        }
+      }
+      else if(strncmp(str, "iTerm", 5) == 0){
+        flag = fscanf(fInput, "%d", &(Par->iTerm));
+        if (flag != 1){
+          perror("Errore di lettura");
+          exit(EXIT_FAILURE);
+        }
+      }
+      else if(strncmp(str, "iDec", 4) == 0){
+        flag = fscanf(fInput, "%d", &(Par->iDec));
+        if (flag != 1){
+          perror("Errore di lettura");
+          exit(EXIT_FAILURE);
+        }
+      }
+      else if(strncmp(str, "iMis", 4) == 0){
+        flag = fscanf(fInput, "%d", &(Par->iMis));
+        if (flag != 1){
+          perror("Errore di lettura");
+          exit(EXIT_FAILURE);
+        }
+      }
+      else if(strncmp(str, "iOverr", 6) == 0){
+        flag = fscanf(fInput, "%d", &(Par->iOverr));
+        if (flag != 1){
+          perror("Errore di lettura");
+          exit(EXIT_FAILURE);
+        }
+      }
+      else if(strncmp(str, "iStart", 6) == 0){
+        flag = fscanf(fInput, "%d", &(Par->iStart));
+        if (flag != 1){
+          perror("Errore di lettura");
+          exit(EXIT_FAILURE);
+        }
+      }
+      else if(strncmp(str, "iBackup", 7) == 0){
+        flag = fscanf(fInput, "%d", &(Par->iBackup));
+        if (flag != 1){
+          perror("Errore di lettura");
+          exit(EXIT_FAILURE);
+        }
+      }
+      else if(strncmp(str, "conf_file", 9) == 0){
+        flag = fscanf(fInput, "%s", Par->conf_file);
+        if (flag != 1){
+          perror("Errore di lettura");
+          exit(EXIT_FAILURE);
+        }
+      }
+      else if(strncmp(str, "eps_file", 8) == 0){
+        flag = fscanf(fInput, "%s", Par->eps_file);
+        if (flag != 1){
+          perror("Errore di lettura");
+          exit(EXIT_FAILURE);
+        }
+      }
+      else if(strncmp(str, "data_file", 9) == 0){
+        flag = fscanf(fInput, "%s", Par->data_file);
+        if (flag != 1){
+          perror("Errore di lettura");
+          exit(EXIT_FAILURE);
+        }
+      }
+      else if(strncmp(str, "log_file", 8) == 0){
+        flag = fscanf(fInput, "%s", Par->log_file);
+        if (flag != 1){
+          perror("Errore di lettura");
+          exit(EXIT_FAILURE);
+        }
+      }
+      else if(strncmp(str, "random_seed", 11) == 0){
+        flag = fscanf(fInput, "%u", &(Par->dSFMT_seed));
+        if (flag != 1){
+          perror("Errore di lettura");
+          exit(EXIT_FAILURE);
+        }
+      }
+      else{
+        fprintf(stderr, "Error: unrecognized option %s in the file %s (%s, %d)\n", str, finput, __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
+      }
+
+      remove_white_line_and_comments(fInput);
+
+      // CONTROLLO SE LA LINEA LETTA È L'ULTIMA
+      temp_i = getc(fInput);
+      if(temp_i == EOF){
+        end=0;
+      }
+      else{
+        ungetc(temp_i, fInput);
+      }
+    }
+
+    fclose(fInput);
+    Par->V = (int)pow(Par->L, D);    // CALCOLO QUA IL VOLUME
+  }
 }
 
 // PROCEDURA DI ALLOCAZIONE DINAMICA DELLA MEMORIA
@@ -123,18 +259,22 @@ void allocation(SystemParam_t *Par, Field_t *Fields){
 void initializeFields(SystemParam_t *Par, Field_t *Fields){
   int i, j, mu;
 
-  #ifdef RESUME               // SE È DEFINITO RESUME ALLORA LEGGO I CAMPI DA FILE, SENZA INIZIALIZZARLI
-  readFields(Par, Fields);
-  return;
-  #endif
-
-  for(i=0;i<(Par->V);i++){
-    for(j=0;j<N;j++){
-      Fields->scalar[i][j] = 1/sqrt(N) + I*0;
+  if((Par->iStart) == 1){             // COPIO L'ULTIMA CONFIGURAZIONE
+    readFields(Par, Fields);
+  }
+  else if((Par->iStart) == 0){        // INIZIALIZZO IN MODO ORDINATO
+    for(i=0;i<(Par->V);i++){
+      for(j=0;j<N;j++){
+        Fields->scalar[i][j] = 1/sqrt(N) + I*0;
+      }
+      for(mu=0;mu<D;mu++){
+        Fields->gauge[i][mu] = 0.0;
+      }
     }
-    for(mu=0;mu<D;mu++){
-      Fields->gauge[i][mu] = 0.0;
-    }
+  }
+  else{
+    printf("Errore in iStart\n");
+    exit(EXIT_FAILURE);
   }
 }
 
@@ -150,13 +290,13 @@ void initializeObs(Obs_t *Obs){
 }
 
 // PROCEDURA PER INIZIALIZZARE I PARAMETRI DI SISTEMA E LE CONFIGURAZIONI
-void initializeSystem(SystemParam_t *Par, Field_t *Fields, Obs_t *Obs){
+void initializeSystem(SystemParam_t *Par, Field_t *Fields, Obs_t *Obs, char const *finput){
 
-  read_from_input_Param(Par);       // LEGGO DA input.txt I PARAMETRI DEL SISTEMA
+  read_from_input_Param(Par, finput);     // LEGGO DA input.txt I PARAMETRI DEL SISTEMA
 
-  #ifdef RESUME                     // SE RESUME È DEFINITO ALLORA AGGIUSTO LE EPS
-  readEps(Par);                     // DELLE ACCETTANZE CON QUELLE SALVATE
-  #endif
+  if((Par->iStart) == 1){           // LEGGO I PARAMETRI DI ACCETTANZA SALVATI
+    readEps(Par);
+  }
 
   allocation(Par, Fields);          // ALLOCO DINAMICAMENTE LA MEMORIA
 

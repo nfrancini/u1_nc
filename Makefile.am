@@ -27,4 +27,5 @@ u1_nc_SOURCES = ./src/main.c \
 								$(dSFMT) \
 								$(libs)
 
-AM_CFLAGS = -O3 -msse2 -DDSFMT_MEXP=19937 -DHAVE_SSE2 -lm
+CC = icc
+AM_CFLAGS = -O3 -msse2 -DDSFMT_MEXP=19937 -DHAVE_SSE2
