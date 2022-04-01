@@ -1,0 +1,23 @@
+size 8
+
+j 0.380000
+k 0.400000
+
+eps_gauge 2.2
+eps_scalar 0.5
+
+iTerm 100
+iDec 10
+iMis 1000
+iOverr 5
+
+iStart 1        # 0-->PARTENZA ORDINATA, 1-->PARTENZA DA CONFIGURAZIONE SALVATA
+iBackup 100
+
+#output files
+conf_file  ./conf/conf_8_0.380000_0.400000.bin
+eps_file   ./eps/eps_8_0.380000_0.400000.bin
+data_file  ./data/data_8_0.380000_0.400000.dat
+log_file   ./log/log_8_0.380000_0.400000.log
+
+random_seed 3045  #(0=time)

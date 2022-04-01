@@ -130,7 +130,7 @@ void writeObs(FILE *fptr, Obs_t *Obs){
 // PROCEDURA CHE SCRIVE IL FILE DI LOGS
 void writeLogs(SystemParam_t *Par){
   FILE *fptr;
-  fptr = fopen(Par->log_file, "w");
+  fptr = fopen(Par->log_file, "a");
   if(fptr == NULL){
     perror("Errore in apertura");
     exit(EXIT_FAILURE);

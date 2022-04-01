@@ -36,14 +36,16 @@ int main(int argc, char const *argv[]){
   writeFields(&Param, &Config);
 
   // ESEGUO DELLE MISURAZIONI DI ENERGIA OGNI CHIAMATA DI UP_CONF CHE RIPETE IDEC VOLTE L'UPDATE
-  fptr = fopen(Param.data_file, "w");
+  fptr = fopen(Param.data_file, "a");
   if (fptr == NULL) {
     perror("Errore in apertura per la scrittura dati");
     exit(1);
   }
-  fprintf(fptr, "%d\t%d\t%d\t%lf\t%lf\n", Param.L, Param.V, N, Param.J, Param.K);           // SCRIVO I PARAMETRI SU FILE CHE POI RILEGGO NELL'ANALISI
-  fprintf(fptr, "#en_sp_dens\ten_g_dens\tene_density\tsusceptib\tG_pm_tilde\tmu2\n\n");     // PRIMA LINEA SU FILE DELLE MISURE PER CAPIRE COSA SONO LE COLONNE DI DATI
-
+  if (Param.iStart == 0){
+    fprintf(fptr, "%d\t%d\t%d\t%lf\t%lf\n", Param.L, Param.V, N, Param.J, Param.K);           // SCRIVO I PARAMETRI SU FILE CHE POI RILEGGO NELL'ANALISI
+    fprintf(fptr, "#en_sp_dens\ten_g_dens\tene_density\tsusceptib\tG_pm_tilde\tmu2\n\n");     // PRIMA LINEA SU FILE DELLE MISURE PER CAPIRE COSA SONO LE COLONNE DI DATI
+  }
+  
   for(i=0;i<(Param.iMis);i++){
     update_configurations(&Param, &Config);             // UPDATE DELLE CONFIGURAZIONI PER iDec VOLTE PRIMA DELLA MISURA
     measure(&Param, &Config, &Oss);                     // MISURE DELLE VARIE GRANDEZZE SU RETICOLO

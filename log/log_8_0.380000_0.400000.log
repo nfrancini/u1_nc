@@ -1,0 +1,50 @@
++-------------------------------+
+| Simulation details for u1_nc  |
++-------------------------------+
+NUMERO DI FLAVOUR 2
+DIMENSIONE SISTEMA 3
+LATO DEL RETICOLO 8
+
+J 0.38000
+K 0.40000
+
+eps1 2.80000
+eps2 0.40000
+
+iTerm 100
+iDec 10
+iMis 1000
+iOverr 5
+
+iStart 0
+iBackup 100
+
+ACCETTANZA UPDATE DI GAUGE 0.367066
+ACCETTANZA UPDATE SCALARE 0.322657
+
+PROGRAMMA ESEGUITO CORRETTAMENTE
++-------------------------------+
+| Simulation details for u1_nc  |
++-------------------------------+
+NUMERO DI FLAVOUR 2
+DIMENSIONE SISTEMA 3
+LATO DEL RETICOLO 8
+
+J 0.38000
+K 0.40000
+
+eps1 2.80000
+eps2 0.40000
+
+iTerm 100
+iDec 10
+iMis 1000
+iOverr 5
+
+iStart 1
+iBackup 100
+
+ACCETTANZA UPDATE DI GAUGE 0.367181
+ACCETTANZA UPDATE SCALARE 0.322356
+
+PROGRAMMA ESEGUITO CORRETTAMENTE
